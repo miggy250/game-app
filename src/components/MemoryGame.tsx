@@ -3,7 +3,7 @@ import { GameCard } from "./GameCard";
 import { GameStats } from "./GameStats";
 import { WinModal } from "./WinModal";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Sparkles } from "lucide-react";
+import { RotateCcw, Sparkles, Pause, Play } from "lucide-react";
 import { toast } from "sonner";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -31,6 +31,7 @@ export const MemoryGame = () => {
   const [matches, setMatches] = useState(0);
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [showWin, setShowWin] = useState(false);
 
   const initializeGame = useCallback((diff: Difficulty) => {
@@ -52,6 +53,7 @@ export const MemoryGame = () => {
     setMatches(0);
     setTime(0);
     setIsPlaying(true);
+    setIsPaused(false);
     setShowWin(false);
     toast.success(`Game started! Find ${pairs} pairs!`);
   }, []);
@@ -62,13 +64,13 @@ export const MemoryGame = () => {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
       timer = setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [isPlaying]);
+  }, [isPlaying, isPaused]);
 
   useEffect(() => {
     if (flippedCards.length === 2) {
@@ -113,7 +115,7 @@ export const MemoryGame = () => {
   }, [matches, difficulty]);
 
   const handleCardClick = (id: number) => {
-    if (flippedCards.length === 2 || flippedCards.includes(id)) return;
+    if (flippedCards.length === 2 || flippedCards.includes(id) || isPaused) return;
 
     setCards((prev) =>
       prev.map((card) =>
@@ -121,7 +123,7 @@ export const MemoryGame = () => {
       )
     );
     setFlippedCards((prev) => [...prev, id]);
-    
+
     if (flippedCards.length === 0) {
       setMoves((prev) => prev + 1);
     }
@@ -160,6 +162,27 @@ export const MemoryGame = () => {
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>
+          {isPlaying && (
+            <Button
+              onClick={() => {
+                setIsPaused(!isPaused);
+                toast.success(isPaused ? "Game resumed!" : "Game paused!");
+              }}
+              variant={isPaused ? "default" : "outline"}
+            >
+              {isPaused ? (
+                <>
+                  <Play className="w-4 h-4 mr-2" />
+                  Resume
+                </>
+              ) : (
+                <>
+                  <Pause className="w-4 h-4 mr-2" />
+                  Pause
+                </>
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Stats */}
