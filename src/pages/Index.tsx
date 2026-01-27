@@ -1,7 +1,8 @@
-import { MemoryGame } from "@/components/MemoryGame";
+import { Navigate } from 'react-router-dom';
 
 const Index = () => {
-  return <MemoryGame />;
+  // Redirect to dashboard (handled by App.tsx routing)
+  return <Navigate to="/" replace />;
 };
 
 export default Index;
