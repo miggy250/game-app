@@ -65,7 +65,7 @@ export const exportDistributionsToPDF = (distributions: Distribution[], title = 
       d.department?.name || 'Unknown',
       d.quantity.toString(),
       d.unit_price.toLocaleString(),
-      d.total_price.toLocaleString(),
+      (d.total_price || d.quantity * d.unit_price).toLocaleString(),
       d.received_by || '-',
     ]),
     headStyles: { fillColor: [37, 99, 235] },
@@ -85,7 +85,7 @@ export const exportDistributionsToPDF = (distributions: Distribution[], title = 
       '',
       distributions.reduce((sum, d) => sum + d.quantity, 0).toString(),
       '',
-      distributions.reduce((sum, d) => sum + d.total_price, 0).toLocaleString(),
+      distributions.reduce((sum, d) => sum + (d.total_price || d.quantity * d.unit_price), 0).toLocaleString(),
       '',
     ]],
   });
@@ -115,7 +115,7 @@ export const exportStockEntriesToPDF = (entries: StockEntry[], title = 'RTB Stoc
       e.item?.name || 'Unknown',
       e.quantity.toString(),
       e.unit_price.toLocaleString(),
-      e.total_price.toLocaleString(),
+      (e.total_price || e.quantity * e.unit_price).toLocaleString(),
       e.notes || '-',
     ]),
     headStyles: { fillColor: [37, 99, 235] },
@@ -125,7 +125,7 @@ export const exportStockEntriesToPDF = (entries: StockEntry[], title = 'RTB Stoc
       '',
       entries.reduce((sum, e) => sum + e.quantity, 0).toString(),
       '',
-      entries.reduce((sum, e) => sum + e.total_price, 0).toLocaleString(),
+      entries.reduce((sum, e) => sum + (e.total_price || e.quantity * e.unit_price), 0).toLocaleString(),
       '',
     ]],
   });
@@ -159,7 +159,7 @@ export const exportDistributionsToExcel = (distributions: Distribution[]) => {
     'Department': d.department?.name || 'Unknown',
     'Quantity': d.quantity,
     'Unit Price (RWF)': d.unit_price,
-    'Total (RWF)': d.total_price,
+    'Total (RWF)': d.total_price || d.quantity * d.unit_price,
     'Purpose': d.purpose || '',
     'Received By': d.received_by || '',
   }));
@@ -176,7 +176,7 @@ export const exportStockEntriesToExcel = (entries: StockEntry[]) => {
     'Item': e.item?.name || 'Unknown',
     'Quantity': e.quantity,
     'Unit Price (RWF)': e.unit_price,
-    'Total (RWF)': e.total_price,
+    'Total (RWF)': e.total_price || e.quantity * e.unit_price,
     'Notes': e.notes || '',
   }));
 
