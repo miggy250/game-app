@@ -11,6 +11,7 @@ import Inventory from "@/pages/Inventory";
 import Distributions from "@/pages/Distributions";
 import StockEntries from "@/pages/StockEntries";
 import SettingsPage from "@/pages/Settings";
+import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -100,6 +101,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
           </ProtectedRoute>
         }
       />

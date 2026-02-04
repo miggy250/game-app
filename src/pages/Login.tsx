@@ -5,14 +5,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Loader2, Package, Shield, UserCog, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import type { AppRole } from '@/types/inventory';
 
 const Login: React.FC = () => {
   const { signIn, signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ email: '', password: '', fullName: '' });
+  const [signupData, setSignupData] = useState({ 
+    email: '', 
+    password: '', 
+    fullName: '',
+    role: 'secretary' as AppRole
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +40,17 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signUp(signupData.email, signupData.password, signupData.fullName);
+    const { error } = await signUp(
+      signupData.email, 
+      signupData.password, 
+      signupData.fullName,
+      signupData.role
+    );
     
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success('Account created! Please contact the administrator to assign your role.');
+      toast.success(`Account created as ${signupData.role}! Please check your email to verify.`);
     }
     
     setIsLoading(false);
@@ -139,6 +151,48 @@ const Login: React.FC = () => {
                       minLength={6}
                     />
                   </div>
+                  
+                  {/* Role Selection */}
+                  <div className="space-y-3">
+                    <Label>Register as</Label>
+                    <RadioGroup 
+                      value={signupData.role} 
+                      onValueChange={(value) => setSignupData({ ...signupData, role: value as AppRole })}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value="admin" id="role-admin" />
+                        <Label htmlFor="role-admin" className="flex items-center gap-2 cursor-pointer flex-1">
+                          <Shield className="w-4 h-4 text-primary" />
+                          <div>
+                            <p className="font-medium">Administrator</p>
+                            <p className="text-xs text-muted-foreground">Full system access & user management</p>
+                          </div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value="secretary" id="role-secretary" />
+                        <Label htmlFor="role-secretary" className="flex items-center gap-2 cursor-pointer flex-1">
+                          <UserCog className="w-4 h-4 text-primary" />
+                          <div>
+                            <p className="font-medium">Secretary</p>
+                            <p className="text-xs text-muted-foreground">Manage inventory, stock & distributions</p>
+                          </div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value="department_head" id="role-dept" />
+                        <Label htmlFor="role-dept" className="flex items-center gap-2 cursor-pointer flex-1">
+                          <Users className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <p className="font-medium">Department Head</p>
+                            <p className="text-xs text-muted-foreground">View department distributions only</p>
+                          </div>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -154,49 +208,6 @@ const Login: React.FC = () => {
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* Role Info Cards */}
-        <div className="grid grid-cols-1 gap-3">
-          <Card className="bg-card/50 border-primary/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Shield className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-sm">Administrator</p>
-                  <p className="text-xs text-muted-foreground">Full system access, manage users & roles</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card/50 border-secondary/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-secondary/10 rounded-lg">
-                  <UserCog className="w-5 h-5 text-secondary-foreground" />
-                </div>
-                <div>
-                  <p className="font-medium text-sm">Secretary</p>
-                  <p className="text-xs text-muted-foreground">Manage inventory, stock entries & distributions</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-card/50 border-muted/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-muted rounded-lg">
-                  <Users className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="font-medium text-sm">Department Head</p>
-                  <p className="text-xs text-muted-foreground">View department distributions only</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );

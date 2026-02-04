@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useInventoryItems, useCategories, useCreateInventoryItem, useUpdateInventoryItem } from '@/hooks/useInventory';
+import { useInventoryItems, useCategories, useCreateInventoryItem, useUpdateInventoryItem, useDeleteInventoryItem } from '@/hooks/useInventory';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Search, Package, FileDown, FileSpreadsheet } from 'lucide-react';
+import { Plus, Search, Package, FileDown, FileSpreadsheet, Trash2, Pencil } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { exportInventoryToPDF, exportInventoryToExcel } from '@/utils/exportUtils';
 import type { InventoryItem } from '@/types/inventory';
@@ -21,7 +22,7 @@ const Inventory: React.FC = () => {
   const { data: categories } = useCategories();
   const createItem = useCreateInventoryItem();
   const updateItem = useUpdateInventoryItem();
-
+  const deleteItem = useDeleteInventoryItem();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -82,6 +83,10 @@ const Inventory: React.FC = () => {
       minimum_stock_level: item.minimum_stock_level,
     });
     setIsAddDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteItem.mutateAsync(id);
   };
 
   return (
@@ -303,9 +308,35 @@ const Inventory: React.FC = () => {
                     </TableCell>
                     {canManageInventory && (
                       <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)}>
-                          Edit
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)}>
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Item</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{item.name}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(item.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     )}
                   </TableRow>

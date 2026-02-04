@@ -14,7 +14,7 @@ interface AuthContextType {
   isDepartmentHead: boolean;
   canManageInventory: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, role?: AppRole) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -93,15 +93,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, fullName: string, role?: AppRole) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, requested_role: role },
         emailRedirectTo: window.location.origin,
       },
     });
+    
+    // If signup successful and role specified, assign the role
+    if (!error && data.user && role) {
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ user_id: data.user.id, role: role });
+      
+      if (roleError) {
+        console.error('Error assigning role:', roleError);
+      }
+    }
+    
     return { error };
   };
 
