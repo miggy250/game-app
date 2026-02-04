@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Package2
+  Package2,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -61,6 +62,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       { to: '/stock-entries', icon: PackagePlus, label: 'Stock Entries' },
     ] : []),
     { to: '/distributions', icon: Send, label: 'Distributions' },
+    ...(isAdmin ? [
+      { to: '/admin', icon: Shield, label: 'Admin Panel' },
+    ] : []),
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
 
